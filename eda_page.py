@@ -6,7 +6,7 @@ from helper import load_data, draw_pitch_mpl, draw_pitch_plotly
 
 def eda():
     st.sidebar.markdown('#')
-    st.title('Exploratory Data Analysis on football dataset')
+    st.title('Exploratory Dataa Analysis on football dataset')
 
     data = load_data()
 
