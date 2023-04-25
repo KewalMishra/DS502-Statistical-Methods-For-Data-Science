@@ -15,6 +15,10 @@ import plotly.graph_objects as go
 def load_data():
     return pd.read_csv("finalData.csv")
 
+@st.cache_data
+def load_old_data():
+    return pd.read_csv("shots.csv")
+
 def draw_pitch_mpl(x_min=0,
                    x_max=106,
                    y_min=0,

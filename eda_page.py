@@ -10,7 +10,7 @@ from matplotlib.colors import ListedColormap
 import plotly.graph_objects as go
 import numpy as np
 # import missingno as msno
-from helper import load_data, draw_pitch_mpl, draw_pitch_plotly
+from helper import load_data, load_old_data, draw_pitch_mpl, draw_pitch_plotly
 
 def eda():
     st.sidebar.markdown('#')
@@ -25,6 +25,52 @@ def eda():
     yLength = yEnd - yStart
 
     data = load_data()
+    old_data = load_old_data()
+    old_data = old_data.fillna('')
+    st.markdown("###")
+
+    st.header('Histogram Plots') 
+    st.markdown("###")
+
+    viz1 = st.selectbox('Select a parameter', old_data.columns)
+
+    # Create a histogram of the selected data
+    fig, ax = plt.subplots()
+    ax.hist(old_data[viz1], bins=20)
+    ax.set_xlabel(viz1)
+    ax.set_ylabel('Frequency')
+    st.pyplot(fig)
+    st.markdown("###")
+
+    st.header('Heat Map') 
+    st.markdown("###")
+
+    corr = old_data.corr()
+    fig, ax = plt.subplots()
+    sns.heatmap(corr, annot=True, cmap='coolwarm', ax=ax)
+    st.pyplot(fig)
+
+    st.header('Scatter Plot') 
+    st.markdown("###")
+    col1, col2 = st.columns(2)
+
+    # Place a selectbox widget in each column
+    with col1:
+        x_column = st.selectbox('Select X column', old_data.columns)
+
+    with col2:
+        y_column = st.selectbox('Select Y column', old_data.columns)
+
+    # Create a scatter plot of the selected data
+    fig, ax = plt.subplots()
+    sns.scatterplot(x=old_data[x_column], y=old_data[y_column], ax=ax)
+    ax.set_xlabel(x_column)
+    ax.set_ylabel(y_column)
+    st.pyplot(fig)
+
+    st.markdown("###")
+    st.header('On-Field Shots Analysis') 
+    st.markdown("###")
 
     football_field1 = st.selectbox("Type of Shots",['Outcome','Play type','Set-piece'])
     
@@ -267,94 +313,94 @@ def eda():
         ## Show figure
         st.write(fig)
 
-    st.markdown('####')
+    # st.markdown('####')
     
-    daily_avg_sent_exp = st.expander('Data insight')
-    daily_avg_sent_exp.write('More than 11,000 Shots in the Dataset.')
+    # daily_avg_sent_exp = st.expander('Data insight')
+    # daily_avg_sent_exp.write('More than 11,000 Shots in the Dataset.')
 
-    st.markdown('###')
-    show_data = st.checkbox('Show Data')
-    if show_data:
-        st.table(data.head(5))
+#     st.markdown('###')
+#     show_data = st.checkbox('Show Data')
+#     if show_data:
+#         st.table(data.head(5))
 
-    background = 'aliceblue' #"white"
+#     background = 'aliceblue' #"white"
 
-# Two dimensional histogram
-    df_op_Shots = data[(data['play_type'] == 'Open Play')].copy()
+# # Two dimensional histogram
+#     df_op_Shots = data[(data['play_type'] == 'Open Play')].copy()
 
     
-    H_Shot = np.histogram2d(df_op_Shots['position_xM_std'], df_op_Shots['position_yM_std'], bins=50, range=[[0, xLength], [0, yLength]])
-    df_op_goals = df_op_Shots[df_op_Shots['isGoal'] == 1]
-    H_Goal = np.histogram2d(df_op_goals['position_xM_std'], df_op_goals['position_yM_std'], bins=50, range=[[0, xLength], [0, yLength]])
+#     H_Shot = np.histogram2d(df_op_Shots['position_xM_std'], df_op_Shots['position_yM_std'], bins=50, range=[[0, xLength], [0, yLength]])
+#     df_op_goals = df_op_Shots[df_op_Shots['isGoal'] == 1]
+#     H_Goal = np.histogram2d(df_op_goals['position_xM_std'], df_op_goals['position_yM_std'], bins=50, range=[[0, xLength], [0, yLength]])
     
-    fig, ax = plt.subplots(figsize=(16.5, 10.5))
-    fig.set_facecolor(background)
-    cmap=plt.cm.Reds
+#     fig, ax = plt.subplots(figsize=(16.5, 10.5))
+#     fig.set_facecolor(background)
+#     cmap=plt.cm.Reds
 
-    # Get the colormap colors
-    my_cmap = cmap(np.arange(cmap.N))
+#     # Get the colormap colors
+#     my_cmap = cmap(np.arange(cmap.N))
 
-    # Set alpha
-    my_cmap[:,-1] = np.linspace(0, 1, cmap.N)
+#     # Set alpha
+#     my_cmap[:,-1] = np.linspace(0, 1, cmap.N)
 
-    # Create new colormap
-    my_cmap = ListedColormap(my_cmap)
-    ## Draw the pitch
-    draw_pitch_mpl(x_min=0,
-                x_max=xLength,
-                y_min=0,
-                y_max=yLength,
-                orientation="vertical", # "horizontal"
-                aspect="fll",
-                pitch_color=background,
-                line_color="midnightblue",
-                ax=ax
-                )
+#     # Create new colormap
+#     my_cmap = ListedColormap(my_cmap)
+#     ## Draw the pitch
+#     draw_pitch_mpl(x_min=0,
+#                 x_max=xLength,
+#                 y_min=0,
+#                 y_max=yLength,
+#                 orientation="vertical", # "horizontal"
+#                 aspect="fll",
+#                 pitch_color=background,
+#                 line_color="midnightblue",
+#                 ax=ax
+#                 )
 
-    ## Heat map
-    pos=ax.imshow(H_Goal[0]/H_Shot[0],
-                extent=[-1, yLength, xLength, -1],
-                aspect='auto',
-                cmap=my_cmap,
-                #vmin=0,
-                #vmax=0.5
-                )
+#     ## Heat map
+#     pos=ax.imshow(H_Goal[0]/H_Shot[0],
+#                 extent=[-1, yLength, xLength, -1],
+#                 aspect='auto',
+#                 cmap=my_cmap,
+#                 #vmin=0,
+#                 #vmax=0.5
+#                 )
 
-    ## Colour bar
-    fig.colorbar(pos, ax=ax)
+#     ## Colour bar
+#     fig.colorbar(pos, ax=ax)
 
-    ## Set title
-    ax.set_title('Proportion of Shots Resulting in a\nGoal Before Outlier Removal',
-                loc='center',
-                color='midnightblue', 
-                fontweight='bold',
-                fontfamily='DejaVu Sans',
-                fontsize=16,
-                )
+#     ## Set title
+#     ax.set_title('Proportion of Shots Resulting in a\nGoal Before Outlier Removal',
+#                 loc='center',
+#                 color='midnightblue', 
+#                 fontweight='bold',
+#                 fontfamily='DejaVu Sans',
+#                 fontsize=16,
+#                 )
 
 
-    ## Show figure
-    plt.tight_layout()
-    plt.gca().set_aspect('equal', adjustable='box')
-    st.markdown('####')
-    st.write(fig)
-    st.markdown('####')
-    daily_avg_sent_exp = st.expander('Data insight')
-    daily_avg_sent_exp.write('''
-    There are data points far away from the goal that almost certainly wrong, the other might indeed have happened in a match and are therefore right, just like the Xabi Alonso goal against Luton where the goalkeeper was out of position, causing Xabi to shoot from a position that he otherwise would not shoot from. For example, it appears that a goal was scored from the edge of the of the attacking team's box. There is also a goal from the halfway line.
+#     ## Show figure
+#     plt.tight_layout()
+#     plt.gca().set_aspect('equal', adjustable='box')
+#     st.markdown('####')
+#     st.write(fig)
+#     st.markdown('####')
+#     daily_avg_sent_exp = st.expander('Data insight')
+#     daily_avg_sent_exp.write('''
+#     There are data points far away from the goal that almost certainly wrong, the other might indeed have happened in a match and are therefore right, just like the Xabi Alonso goal against Luton where the goalkeeper was out of position, causing Xabi to shoot from a position that he otherwise would not shoot from. For example, it appears that a goal was scored from the edge of the of the attacking team's box. There is also a goal from the halfway line.
 
-Reasons for this could be:
-*    The data in correctly entered,
-*    Coordinate system flipped for the particular shot (unlikely).
+# Reasons for this could be:
+# *    The data in correctly entered,
+# *    Coordinate system flipped for the particular shot (unlikely).
 
-The data is required to be smooth so that the model doesn't think there's a 100% chance of scoring when shooting from the edge of the goalkeepers box.
+# The data is required to be smooth so that the model doesn't think there's a 100% chance of scoring when shooting from the edge of the goalkeepers box.
 
-There are three options to deal with these outliers:
-1.    Delete the outliers;
-2.    Use our experience and tell the model that the probability to score from this position is realistically 0. This means we change the target but leave the features as is; and
-3.    Assume that the shot happened closer to the goal, but we still assume that it went in. This means that we change the features but leave the target.
+# There are three options to deal with these outliers:
+# 1.    Delete the outliers;
+# 2.    Use our experience and tell the model that the probability to score from this position is realistically 0. This means we change the target but leave the features as is; and
+# 3.    Assume that the shot happened closer to the goal, but we still assume that it went in. This means that we change the features but leave the target.
 
-In our situation, the second strategy would make the most sense.
+# In our situation, the second strategy would make the most sense.
 
-There are sophisticated ways to filter out these shots when a full set of Event data is available. For example, with full event data, we could determine the percentage likelihood of shooting from a position by looking at all actions on a pitch, and seeing how many times a player shoots relative to other actions. If the player 99 times out of 100 passes the ball instead of shooting for said position, we can set the chance that the player scorores to zero. With this logic, we can assume that all shots happening in any of the cells with < 1% shooting probability did not result in a goal.
-''')
+# There are sophisticated ways to filter out these shots when a full set of Event data is available. For example, with full event data, we could determine the percentage likelihood of shooting from a position by looking at all actions on a pitch, and seeing how many times a player shoots relative to other actions. If the player 99 times out of 100 passes the ball instead of shooting for said position, we can set the chance that the player scorores to zero. With this logic, we can assume that all shots happening in any of the cells with < 1% shooting probability did not result in a goal.
+# ''')
